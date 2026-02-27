@@ -22,46 +22,48 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class MainActivityTest {
+public class ShowActivityTest {
     @Rule
     public ActivityScenarioRule<MainActivity> scenario = new
             ActivityScenarioRule<MainActivity>(MainActivity.class);
+
     @Test
-    public void testAddCity(){
-        // Click on Add City button
+    public void testSwitchActivity() {
+        // Add a city first
         onView(withId(R.id.button_add)).perform(click());
-        // Type "Edmonton" in the editText
-        onView(withId(R.id.editText_name)).perform(ViewActions.typeText("Edmonton"));
-        // Click on Confirm
+        onView(withId(R.id.editText_name)).perform(ViewActions.typeText("Calgary"));
         onView(withId(R.id.button_confirm)).perform(click());
-        // Check if text "Edmonton" is matched with any of the text displayed on the screen
-        onView(withText("Edmonton")).check(matches(isDisplayed()));
+        // Click on item in the city list
+        onData(is(instanceOf(String.class))).inAdapterView(withId(R.id.city_list)).atPosition(0).perform(click());
+        // Check if city_textView is visible
+        onView(withId(R.id.city_textView)).check(matches(isDisplayed()));
     }
+
     @Test
-    public void testClearCity(){
-        // Add first city to the list
-        onView(withId(R.id.button_add)).perform(click());
-        onView(withId(R.id.editText_name)).perform(ViewActions.typeText("Edmonton"));
-        onView(withId(R.id.button_confirm)).perform(click());
-        //Add another city to the list
+    public void testConsistentCityName() {
+        // Add a city first
         onView(withId(R.id.button_add)).perform(click());
         onView(withId(R.id.editText_name)).perform(ViewActions.typeText("Vancouver"));
         onView(withId(R.id.button_confirm)).perform(click());
-        //Clear the list
-        onView(withId(R.id.button_clear)).perform(click());
-        onView(withText("Edmonton")).check(doesNotExist());
-        onView(withText("Vancouver")).check(doesNotExist());
+        // Click on a item in the city list
+        onData(is(instanceOf(String.class))).inAdapterView(withId(R.id.city_list)).atPosition(0).perform(click());
+        // Check if the city name matches the new activity
+        onView(withId(R.id.city_textView)).check(matches(withText("Vancouver")));
     }
+
     @Test
-    public void testListView(){
-        // Add a city
+    public void testBackButton() {
+        // Add a city first
         onView(withId(R.id.button_add)).perform(click());
         onView(withId(R.id.editText_name)).perform(ViewActions.typeText("Edmonton"));
         onView(withId(R.id.button_confirm)).perform(click());
-        // Check if in the Adapter view (given id of that adapter view),there is a data
-        // (which is an instance of String) located at position zero.
-        // If this data matches the text we provided then Voila! Our test should pass
-        // You can also use anything() in place of is(instanceOf(String.class))
-        onData(is(instanceOf(String.class))).inAdapterView(withId(R.id.city_list)).atPosition(0).check(matches((withText("Edmonton"))));
+        // Click on a item in the city list
+        onData(is(instanceOf(String.class))).inAdapterView(withId(R.id.city_list)).atPosition(0).perform(click());
+        // Click the back button displayed in ShowActivity
+        onView(withId(R.id.back_button)).perform(click());
+        // Search for button_add to check if we are back in MainActivity
+        onView(withId(R.id.button_add)).check(matches(isDisplayed()));
     }
+
+
 }
